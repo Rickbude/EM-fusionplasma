@@ -5,8 +5,8 @@ results that can be found in the paper:
 
 **'Accelerating Simulations of Electromagnetic Waves in Hot, Magnetized Fusion Plasmas'**
 
-by R.H.S. Budé, D. Van Eester, J. van Dijk, R.J.E. Jaspers and A.B. Smolders,
-accepted for publication in PPCF (Plasma Physics and Controlled Fusion). 
+by R.H.S. Budé, D. Van Eester, J. van Dijk, R.J.E. Jaspers and A.B. Smolders. 
+
 doi: https://doi.org/10.1088/1361-6587/abd619
 
 ## License
