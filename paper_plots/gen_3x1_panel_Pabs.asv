@@ -1,0 +1,92 @@
+addpath('../plasma_property_functions');    % load functions that contain  plasma properties (cyclotron frequency etc)
+addpath('../hot_plasma_functions_clean');         % load functions specifically for hot plasma (cp Stix tensor, etc)
+addpath('../cold_plasma_functions');        % load functions specifically for cold plasma (cp Stix tensor, etc)
+addpath('../EM_property_functions');        % load functions for EM properties (Poynting vector etc)
+addpath('../profile_functions');            % load functions for generating profiles
+addpath('../simulator_functions');          % load functions that support running simulations (general)
+addpath('../error_functions');              % load different error metrics
+
+clear all;
+close all;
+profile on;
+%load physical constants
+constants;
+
+tic;
+x_min = -1.05;
+x_max = 0;
+dim   = 1;
+
+load('../input_file');
+%profile_name = 'JET_test_Dirk_75H';
+input_file = strcat('../',input_file);
+
+%Bb: background magnetic field
+
+override.zeta = 0.01;
+override.Np   = 2;
+[profiles,flags,settings] = load_profile_override(input_file,override);
+E_fit_low = hp_calc_E_truncated_fit   (profiles,flags,settings);
+
+override.zeta = 1.2;
+override.Np   = 8;
+[profiles,flags,settings] = load_profile_override(input_file,override);
+E_fit_high = hp_calc_E_truncated_fit   (profiles,flags,settings);
+
+
+E_taylor   = hp_calc_E_truncated_taylor(profiles,flags,settings);
+[~,E_ao,~] = hp_calc_E_all_orders      (profiles,flags,settings);
+
+
+disp('Calcul
+P_abs  = zeros(N,n_species+1);
+tprev  = toc;
+for species = 1:n_species+1
+    J_p = hp_plasma_current_fast(r,E,k,curve_k_parr,omega,Bb,m(:,species),n(:,species),q(:,species),T(:,species),Jant);
+    P_abs(:,species) = power_absorbed(J_p,E);
+end
+close(w);
+
+
+
+
+x  = profiles.r - mean(profiles.r);
+ap = 0.95;
+x_wall = settings.x_wall;
+x_bnd  = bitand(x>x_min,x<x_max);
+
+figure(1);
+colors = get(gca,'colororder');
+subplot(3,1,1);
+
+plot(x(x_bnd),abs(E_ao(x_bnd,dim)));
+xline(-ap,'--');   
+xlim([x_min x_max])
+xlabel('x [m]');
+ylabel('|E_x| [V/m]')
+error = mean(RRSE(E_ao(x_bnd,dim),E_ao(x_bnd,dim)));
+title(sprintf('All-orders model, RRSE = %.2f',error));
+
+subplot(3,1,2);
+plot(x(x_bnd),abs(E_taylor(x_bnd,dim)));
+xline(-ap,'--');   
+xlim([x_min x_max])
+xlabel('x [m]');
+ylabel('|E_x| [V/m]')
+error = mean(RRSE(E_ao(x_bnd,dim),E_taylor(x_bnd,dim)));
+title(sprintf('Truncated Taylor: RRSE = %.2f',error));
+
+
+subplot(3,1,3);
+plot(x(x_bnd),abs(E_fit_high(x_bnd,dim)));
+xline(-ap,'--');   
+xlim([x_min x_max])
+xlabel('x [m]');
+ylabel('|E_x| [V/m]')
+error = mean(RRSE(E_ao(x_bnd,dim),E_fit_high(x_bnd,dim)));
+title(sprintf('Truncated polynomial (N_p = 8, \\zeta =1.2): RRSE = %.2f',error));
+
+savegoodplot('./plot_out/Ex_compare_RRSE',[12 14],0)
+
+
+
